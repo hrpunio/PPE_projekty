@@ -22,13 +22,13 @@ library ("fpp2")
 sessionInfo()
 ```
 
-Plik `socjalne2020.csv` zawiera miesięczne dane nt skupu mleka w Polsce w okresie
+Plik `socjalne2020.csv` zawiera miesięczne dane nt wysokoci zasiku w Polsce w okresie
 styczeń 2010--październik 2020 (TABL. 20    ŚWIADCZENIA SPOŁECZNE; https://stat.gov.pl/obszary-tematyczne/inne-opracowania/) 
 
 ```{r echo=T}
 ## załadowanie danych z pliku CSV zamiana na typ TS (szereg czasowy)
 t <- read.csv("socjalne2020.csv", dec=",", sep = ';',  header=T, na.string="NA");
-t <-ts(t, start=c(10,1), frequency=12)
+t <-ts(t, start=c(2010,1), frequency=12)
 end(t)
 ```
 
@@ -43,8 +43,8 @@ czy występują obserwacje nietypowe. Czy występuje trend i sezonowść.)
 autoplot(t, facets = TRUE) + geom_smooth()
 ```
 
-Analizując wykres dostrzegamy wyraźne wahania sezonowe oraz trend. 
-Nie widać żadnych braków danych, obserwacji nietypowych czy załamań trendu.
+Analizując wykres dostrzegamy brak wahania sezonowego oraz trend. 
+Dostrzegamy gwałtowny wzrost w okresie kwiecień-wrzesień 2020, byc moze jest to spowodowane druga fala COVID-19
 
 
 Kolejne dwa wykresy
@@ -55,7 +55,7 @@ ggseasonplot(t)
 autoplot(decompose(t) )
 ```
 
-wysokosc wyplacanego swiadczenia uzalezniona jest od ustawy, sezonowosc nie mu na to wplywu
+wysokosc wyplacanego swiadczenia uzalezniona jest od ustawy, sezonowosc nie ma na to wplywu
 
 ```{r echo=F}
 ## Ad 4/ statystyki zbiorcze
@@ -189,7 +189,7 @@ m_aaa
 
 ## Porównanie prognoz
 
-Ponieważ szereg wykazuje się trendem i sezonowścią porównamy wyniki
+Ponieważ szereg wykazuje się trendem  porównamy wyniki
 do *naiwnych* modeli snaive (sezonowość) oraz rwf (trend)☚☚☚
 
 
@@ -223,7 +223,20 @@ A.table
 ```
 
 Przyjmując jako kryterium najniższą wartość RMSE/MAPE w zbiorze testowym
-wybiermy model ARIMA jako najlepiej prognozujący skup mleka
+wybiermy model BROWNA jako najlepiej prognozujący wysokosc wyplacanego zasilku
+Reguła predykcji w postaci rekurencyjnej:
+
+dla pierwszego momentu czasowego:
+
+{\displaystyle Y_{1}^{*}=Y_{0},}{\displaystyle Y_{1}^{*}=Y_{0},}
+dla następnych:
+
+{\displaystyle Y_{t}^{*}=\alpha Y_{t-1}+(1-\alpha )Y_{t-1}^{*},}{\displaystyle Y_{t}^{*}=\alpha Y_{t-1}+(1-\alpha )Y_{t-1}^{*},}
+gdzie:
+
+{\displaystyle Y_{t}^{*}}{\displaystyle Y_{t}^{*}} – wartości prognozy dla danej wartości parametru wygładzania {\displaystyle \alpha ,}\alpha ,
+{\displaystyle Y_{t}}Y_t – wartości szeregu,
+{\displaystyle \alpha }\alpha  – parametr wyrównywania wykładniczego (współczynnik wygładzania) z przedziału (0,1].
 
 Porównanie wyników prognozowania na wykresie:
 
@@ -246,7 +259,7 @@ autoplot(tt, series="empir") +
   autolayer(m_aaf$mean, series="aa")
 ```
 
-  wszystkie prognozy są systematycznie zawyżone się okazuje. Być może 
+  wszystkie prognozy są systematycznie. Być może 
 jest to spowodowane zmniejszeniem budzetu związanym z epidemię COVID19.
 
  
